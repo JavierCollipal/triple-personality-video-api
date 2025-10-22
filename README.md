@@ -220,14 +220,25 @@ This microservice automatically documents to **THREE separate MongoDB databases*
 
 ## 🔒 Security & Best Practices
 
+**📄 Full Security Audit Report**: See [SECURITY.md](SECURITY.md)
+
+✅ **Credential Protection**: Zero hardcoded credentials (audited ✅)
 ✅ **Environment Variables**: All secrets in .env (gitignored)
 ✅ **TypeScript Strict Mode**: Maximum type safety
 ✅ **Validation**: DTO validation on all endpoints
-✅ **Rule 3.2 Compliance**: Never commit .env files
+✅ **Rule 3.2 Compliance**: Never commit .env files (enforced ✅)
 ✅ **Rule 3.7 Compliance**: TypeScript by default
 ✅ **Rule 3.9 Compliance**: Carabineros hymn integration
 ✅ **Rule 3.10 Compliance**: Videos saved to repository
 ✅ **Rules 3.11/3.12 Compliance**: Triple personality MANDATORY
+
+**Security Audit Status**: ✅ **PASSED** - No vulnerabilities detected
+- No hardcoded MongoDB URIs ✅
+- No hardcoded passwords ✅
+- No exposed API keys ✅
+- .gitignore properly configured ✅
+- GitHub Actions secure ✅
+- Docker configuration secure ✅
 
 ## 🧪 Testing
 

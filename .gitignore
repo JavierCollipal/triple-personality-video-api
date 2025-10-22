@@ -35,12 +35,24 @@ lerna-debug.log*
 !.vscode/launch.json
 !.vscode/extensions.json
 
-# dotenv environment variable files
+# dotenv environment variable files (CRITICAL - NEVER COMMIT!)
 .env
+.env.*
+!.env.example
 .env.development.local
 .env.test.local
 .env.production.local
 .env.local
+
+# Credentials and secrets (CRITICAL - NEVER COMMIT!)
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+secrets.json
+config/secrets.yml
+auth.json
 
 # temp directory
 .temp
