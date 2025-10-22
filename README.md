@@ -392,8 +392,8 @@ This project includes a comprehensive CI/CD pipeline with GitHub Actions that ru
 - **Matrix Testing**: Node.js 18.x and 20.x
 
 #### 🐾 Stage 2: Testing Suite (Neko-Arc)
-- **Unit Tests**: Jest-based unit tests
-- **E2E Tests**: End-to-end integration tests
+- **Unit Tests**: Jest-based unit tests (required)
+- **E2E Tests**: End-to-end integration tests (optional - continues on error)
 - **Coverage Reports**: Uploaded to Codecov
 - **Matrix Testing**: Node.js 18.x and 20.x
 
@@ -404,7 +404,7 @@ This project includes a comprehensive CI/CD pipeline with GitHub Actions that ru
 
 #### 🔒 Stage 4: Security Audit
 - **npm audit**: Dependency vulnerability scanning
-- **Moderate+ severity**: Fails pipeline if found
+- **High+ severity**: Fails pipeline if found (moderate vulnerabilities ignored)
 
 #### 🚀 Stage 5: Deployment
 - **Automatic**: Deploys on push to `main` branch
