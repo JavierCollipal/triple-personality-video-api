@@ -1,10 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { PersonalityType } from '../../video/interfaces/personality.interface';
-import {
-  VideoJobStatus,
-  EncodingMethod,
-} from '../../video/interfaces/video-job.interface';
+import { VideoJobStatus, EncodingMethod } from '../../video/interfaces/video-job.interface';
 
 /**
  * Video Job MongoDB Schema

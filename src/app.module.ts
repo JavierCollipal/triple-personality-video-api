@@ -21,7 +21,7 @@ import { PersonalitiesModule } from './personalities/personalities.module';
     // Neko's MongoDB connection (neko-defense-system)
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
+      useFactory: (configService: ConfigService) => ({
         uri: configService.get<string>('MONGODB_URI'),
         dbName: configService.get<string>('MONGODB_DATABASE'),
       }),
@@ -32,7 +32,7 @@ import { PersonalitiesModule } from './personalities/personalities.module';
     MongooseModule.forRootAsync({
       connectionName: 'marionnette',
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
+      useFactory: (configService: ConfigService) => ({
         uri: configService.get<string>('MONGODB_URI'),
         dbName: configService.get<string>('MARIONNETTE_DATABASE'),
       }),
@@ -43,7 +43,7 @@ import { PersonalitiesModule } from './personalities/personalities.module';
     MongooseModule.forRootAsync({
       connectionName: 'noel',
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
+      useFactory: (configService: ConfigService) => ({
         uri: configService.get<string>('MONGODB_URI'),
         dbName: configService.get<string>('NOEL_DATABASE'),
       }),

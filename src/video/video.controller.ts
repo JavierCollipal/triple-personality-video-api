@@ -52,12 +52,13 @@ export class VideoController {
       this.logger.log('✅ Video creation successful!');
       return result;
     } catch (error) {
-      this.logger.error('❌ Video creation failed:', error.message);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error('❌ Video creation failed:', errorMessage);
 
       throw new HttpException(
         {
           status: HttpStatus.INTERNAL_SERVER_ERROR,
-          error: error.message,
+          error: errorMessage,
           message: 'Video creation failed',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -76,10 +77,11 @@ export class VideoController {
     try {
       return await this.videoService.getJobStatus(jobId);
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
-          error: error.message,
+          error: errorMessage,
           message: `Job ${jobId} not found`,
         },
         HttpStatus.NOT_FOUND,
@@ -126,13 +128,7 @@ export class VideoController {
           name: 'Noel',
           position: 'middle',
           color: 'white/silver',
-          characteristics: [
-            'Sarcastic',
-            'Blunt',
-            'Tactical',
-            'Professional',
-            'Mocks Mario',
-          ],
+          characteristics: ['Sarcastic', 'Blunt', 'Tactical', 'Professional', 'Mocks Mario'],
         },
       ],
       rule: 'ALL THREE PERSONALITIES MUST ALWAYS PARTICIPATE (NON-NEGOTIABLE!)',

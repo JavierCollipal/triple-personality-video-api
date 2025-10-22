@@ -48,8 +48,7 @@ export class CreateVideoDto {
   @ValidateNested({ each: true })
   @Type(() => CommentaryDto)
   @ArrayMinSize(3, {
-    message:
-      'ALL THREE PERSONALITIES MUST COMMENT! (NON-NEGOTIABLE Rule 3.11/3.12)',
+    message: 'ALL THREE PERSONALITIES MUST COMMENT! (NON-NEGOTIABLE Rule 3.11/3.12)',
   })
   commentaries: CommentaryDto[];
 

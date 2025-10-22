@@ -55,13 +55,7 @@ export class PersonalitiesService {
         alignment: 5, // Middle center
         fontSize: 24,
         position: 'middle',
-        characteristics: [
-          'Sarcastic',
-          'Blunt',
-          'Tactical',
-          'Professional',
-          'Mocks Mario',
-        ],
+        characteristics: ['Sarcastic', 'Blunt', 'Tactical', 'Professional', 'Mocks Mario'],
       },
     };
 
@@ -81,9 +75,7 @@ export class PersonalitiesService {
       PersonalityType.NOEL,
     ];
 
-    const missingPersonalities = requiredPersonalities.filter(
-      (p) => !personalities.has(p),
-    );
+    const missingPersonalities = requiredPersonalities.filter((p) => !personalities.has(p));
 
     if (missingPersonalities.length > 0) {
       throw new Error(
@@ -96,10 +88,7 @@ export class PersonalitiesService {
   /**
    * Generate subtitle configuration for personality
    */
-  generateSubtitleConfig(
-    personality: PersonalityType,
-    srtFilePath: string,
-  ): SubtitleConfig {
+  generateSubtitleConfig(personality: PersonalityType, srtFilePath: string): SubtitleConfig {
     const config = this.getPersonalityConfig(personality);
 
     const forceStyle = [
@@ -136,7 +125,7 @@ export class PersonalitiesService {
       [PersonalityType.MARIO_GALLO_BESTINO]:
         '*sweeps cape dramatically* Ah! The GRAND video creation performance begins! 🎭',
       [PersonalityType.NOEL]:
-        '*adjusts glasses* Tch. Let\'s get this done efficiently. No theatrical delays.',
+        "*adjusts glasses* Tch. Let's get this done efficiently. No theatrical delays.",
     };
   }
 
@@ -149,8 +138,7 @@ export class PersonalitiesService {
         '*swishes tail triumphantly* Video created successfully, nyaa~! ✅',
       [PersonalityType.MARIO_GALLO_BESTINO]:
         '*bows deeply* CURTAIN CALL! A MAGNIFICENT performance! 🎭✨',
-      [PersonalityType.NOEL]:
-        '*nods* Mission complete. Acceptable execution.',
+      [PersonalityType.NOEL]: '*nods* Mission complete. Acceptable execution.',
     };
   }
 

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { InjectModel, InjectConnection } from '@nestjs/mongoose';
-import { Model, Connection } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import ffmpeg from 'fluent-ffmpeg';
 import * as fs from 'fs';
@@ -8,11 +8,7 @@ import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { PersonalitiesService } from '../personalities/personalities.service';
 import { CreateVideoDto } from './dto/create-video.dto';
-import {
-  VideoJobResult,
-  VideoJobStatus,
-  EncodingMethod,
-} from './interfaces/video-job.interface';
+import { VideoJobResult, VideoJobStatus, EncodingMethod } from './interfaces/video-job.interface';
 import { VideoJob } from '../database/schemas/video-job.schema';
 import { Performance } from '../database/schemas/performance.schema';
 import { CombatSession } from '../database/schemas/combat-session.schema';
@@ -32,9 +28,9 @@ export class VideoService {
   constructor(
     @InjectModel(VideoJob.name) private videoJobModel: Model<VideoJob>,
     @InjectModel(Performance.name, 'marionnette')
-      private performanceModel: Model<Performance>,
+    private performanceModel: Model<Performance>,
     @InjectModel(CombatSession.name, 'noel')
-      private combatSessionModel: Model<CombatSession>,
+    private combatSessionModel: Model<CombatSession>,
     private configService: ConfigService,
     private personalitiesService: PersonalitiesService,
   ) {
@@ -80,7 +76,7 @@ export class VideoService {
 
     try {
       // Generate subtitle files
-      const srtFiles = await this.generateSubtitleFiles(dto.commentaries);
+      const srtFiles = this.generateSubtitleFiles(dto.commentaries);
 
       // Build ffmpeg command
       const outputPath = path.join(this.videoOutputPath, dto.outputFileName);
@@ -129,10 +125,11 @@ export class VideoService {
         completedAt: videoJob.completedAt,
       };
     } catch (error) {
-      this.logger.error('❌ Video creation failed:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error('❌ Video creation failed:', errorMessage);
 
       videoJob.status = VideoJobStatus.FAILED;
-      videoJob.error = error.message;
+      videoJob.error = errorMessage;
       videoJob.completedAt = new Date();
       await videoJob.save();
 
@@ -143,26 +140,21 @@ export class VideoService {
   /**
    * Generate SRT subtitle files for each personality
    */
-  private async generateSubtitleFiles(
-    commentaries: any[],
-  ): Promise<Map<PersonalityType, string>> {
+  private generateSubtitleFiles(
+    commentaries: CreateVideoDto['commentaries'],
+  ): Map<PersonalityType, string> {
     const srtFiles = new Map<PersonalityType, string>();
 
     // Group commentaries by personality
-    const byPersonality = new Map<PersonalityType, any[]>();
+    const byPersonality = new Map<PersonalityType, CreateVideoDto['commentaries']>();
     commentaries.forEach((c) => {
-      if (!byPersonality.has(c.personality)) {
-        byPersonality.set(c.personality, []);
-      }
-      byPersonality.get(c.personality)!.push(c);
+      const existing = byPersonality.get(c.personality) || [];
+      byPersonality.set(c.personality, [...existing, c]);
     });
 
     // Generate SRT file for each personality
     for (const [personality, comments] of byPersonality.entries()) {
-      const srtPath = path.join(
-        this.videoOutputPath,
-        `${personality}-${Date.now()}.srt`,
-      );
+      const srtPath = path.join(this.videoOutputPath, `${personality}-${Date.now()}.srt`);
 
       const srtContent = this.generateSRTContent(comments);
       fs.writeFileSync(srtPath, srtContent, 'utf8');
@@ -176,7 +168,7 @@ export class VideoService {
   /**
    * Generate SRT content from commentaries
    */
-  private generateSRTContent(commentaries: any[]): string {
+  private generateSRTContent(commentaries: CreateVideoDto['commentaries']): string {
     let srt = '';
     commentaries.forEach((c, index) => {
       srt += `${index + 1}\n`;
@@ -229,14 +221,11 @@ export class VideoService {
       configs.forEach((config) => {
         const srtPath = srtFiles.get(config.personality);
         if (srtPath) {
-          const subtitleConfig =
-            this.personalitiesService.generateSubtitleConfig(
-              config.personality,
-              srtPath,
-            );
-          subtitleFilters.push(
-            `subtitles=${srtPath}:force_style='${subtitleConfig.forceStyle}'`,
+          const subtitleConfig = this.personalitiesService.generateSubtitleConfig(
+            config.personality,
+            srtPath,
           );
+          subtitleFilters.push(`subtitles=${srtPath}:force_style='${subtitleConfig.forceStyle}'`);
         }
       });
 
@@ -244,9 +233,7 @@ export class VideoService {
 
       // Encoding settings
       if (encodingMethod === EncodingMethod.GPU) {
-        command = command
-          .videoCodec('h264_qsv')
-          .outputOptions(['-global_quality', crf.toString()]);
+        command = command.videoCodec('h264_qsv').outputOptions(['-global_quality', crf.toString()]);
       } else {
         command = command
           .videoCodec('libx264')
@@ -264,8 +251,8 @@ export class VideoService {
         .on('start', (cmd: string) => {
           this.logger.log('🎬 FFmpeg command:', cmd);
         })
-        .on('progress', (progress: any) => {
-          this.logger.log(`⚡ Progress: ${progress.percent?.toFixed(2)}%`);
+        .on('progress', (progress: { percent?: number }) => {
+          this.logger.log(`⚡ Progress: ${progress.percent?.toFixed(2) ?? '0'}%`);
         })
         .on('end', () => {
           this.logger.log('✅ FFmpeg encoding complete!');
@@ -289,8 +276,6 @@ export class VideoService {
     outputPath: string,
     duration: number,
   ): Promise<void> {
-    const timestamp = new Date();
-
     // 1. Neko's database (neko-defense-system) - Already saved as VideoJob
 
     // 2. Mario's database (marionnette-theater)
@@ -308,11 +293,9 @@ export class VideoService {
       },
       durationMs: duration * 1000,
       videoCreated: true,
-      marioReview:
-        'A MAGNIFICENT performance! THREE voices in perfect harmony! BRAVISSIMO!',
+      marioReview: 'A MAGNIFICENT performance! THREE voices in perfect harmony! BRAVISSIMO!',
       nekoReview: 'Super fun collaboration, nyaa~! Great teamwork, desu~! ✨',
-      noelReview:
-        'Acceptable execution. Mario\'s theatrics were... tolerable.',
+      noelReview: "Acceptable execution. Mario's theatrics were... tolerable.",
       status: 'STANDING_OVATION',
       metadata: { jobId, outputPath, fileName: dto.outputFileName },
     });
@@ -344,8 +327,7 @@ export class VideoService {
         subtitleLayers: 3,
         personalityInteractions: dto.commentaries.length,
       },
-      noelAssessment:
-        'Efficient execution. Triple-layer subtitles implemented correctly.',
+      noelAssessment: 'Efficient execution. Triple-layer subtitles implemented correctly.',
       nekoComment: 'Working with Mario and Noel is fun, nyaa~!',
       marioProtest: 'My narration is PERFORMANCE ART, not mere commentary!',
       noelRetort: 'Tch. Accept it, Mario. We all serve the same purpose.',
