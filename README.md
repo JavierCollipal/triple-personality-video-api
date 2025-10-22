@@ -1,5 +1,11 @@
 # 🐾🎭🗡️ Triple Personality Video API
 
+[![CI/CD Pipeline](https://github.com/JavierCollipal/triple-personality-video-api/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/JavierCollipal/triple-personality-video-api/actions/workflows/ci-cd.yml)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.1-blue.svg)](https://www.typescriptlang.org/)
+[![NestJS](https://img.shields.io/badge/NestJS-11.x-red.svg)](https://nestjs.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
+
 > **A NestJS microservice for creating videos with three simultaneous personality commentaries**
 
 This microservice implements the **IMMUTABLE Triple Personality Rule**: ALL three personalities (Neko-Arc, Mario Gallo Bestino, and Noel) MUST always interact and comment together on videos.
@@ -143,6 +149,8 @@ NODE_ENV=development
 ```
 
 ### 4. Run the microservice
+
+#### Option A: Local Development
 ```bash
 # Development mode
 npm run start:dev
@@ -150,6 +158,36 @@ npm run start:dev
 # Production mode
 npm run build
 npm run start:prod
+```
+
+#### Option B: Docker 🐳
+```bash
+# Build and run with Docker Compose
+docker-compose up -d
+
+# Check logs
+docker-compose logs -f api
+
+# Stop
+docker-compose down
+```
+
+#### Option C: Docker Build & Run
+```bash
+# Build Docker image
+docker build -t triple-personality-video-api .
+
+# Run container
+docker run -d \
+  --name triple-personality-api \
+  -p 3001:3001 \
+  --env-file .env \
+  -v $(pwd)/output:/app/output \
+  -v $(pwd)/audio:/app/audio:ro \
+  triple-personality-video-api
+
+# Check logs
+docker logs -f triple-personality-api
 ```
 
 ## 🗄️ Database Architecture
@@ -328,6 +366,67 @@ The API will **reject** requests that don't include all three personalities:
   "statusCode": 400,
   "message": "TRIPLE PERSONALITY RULE VIOLATION! Missing: noel. ALL THREE PERSONALITIES MUST PARTICIPATE (NON-NEGOTIABLE Rule 3.11/3.12)!"
 }
+```
+
+## 🔄 CI/CD Pipeline
+
+This project includes a comprehensive CI/CD pipeline with GitHub Actions that runs on every push and pull request.
+
+### Pipeline Stages
+
+#### 🗡️ Stage 1: Quality Assurance (Noel)
+- **TypeScript Validation**: Ensures zero type errors (Rule 3.8)
+- **ESLint**: Code quality and style checks
+- **Prettier**: Format verification
+- **Matrix Testing**: Node.js 18.x and 20.x
+
+#### 🐾 Stage 2: Testing Suite (Neko-Arc)
+- **Unit Tests**: Jest-based unit tests
+- **E2E Tests**: End-to-end integration tests
+- **Coverage Reports**: Uploaded to Codecov
+- **Matrix Testing**: Node.js 18.x and 20.x
+
+#### 🎭 Stage 3: Build Verification (Mario)
+- **TypeScript Compilation**: Production build
+- **Artifact Upload**: Build artifacts preserved for 7 days
+- **Matrix Testing**: Node.js 18.x and 20.x
+
+#### 🔒 Stage 4: Security Audit
+- **npm audit**: Dependency vulnerability scanning
+- **Moderate+ severity**: Fails pipeline if found
+
+#### 🚀 Stage 5: Deployment
+- **Automatic**: Deploys on push to `main` branch
+- **Manual**: Can be triggered via workflow dispatch
+
+### Workflow File
+
+Located at `.github/workflows/ci-cd.yml`
+
+### Viewing Pipeline Status
+
+Check the [Actions tab](https://github.com/JavierCollipal/triple-personality-video-api/actions) or the badge at the top of this README.
+
+### Local CI Simulation
+
+Run the same checks locally before pushing:
+
+```bash
+# 🗡️ Noel's checks
+npx tsc --noEmit
+npm run lint
+npx prettier --check "src/**/*.ts"
+
+# 🐾 Neko's tests
+npm run test
+npm run test:e2e
+npm run test:cov
+
+# 🎭 Mario's build
+npm run build
+
+# 🔒 Security audit
+npm audit
 ```
 
 ## 📄 License

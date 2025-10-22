@@ -1,0 +1,198 @@
+name: CI/CD Pipeline - Triple Personality Video API
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  # 🗡️ Noel's Combat Phase: Quality Assurance
+  quality-check:
+    name: 🗡️ Quality Assurance (Noel)
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔍 Noel's Syntax Validation (Rule 3.4)
+        run: |
+          echo "🗡️ Noel: Running TypeScript syntax validation..."
+          npx tsc --noEmit
+          echo "✅ Noel: Syntax validation PASSED."
+
+      - name: 📏 Noel's ESLint Check
+        run: |
+          echo "🗡️ Noel: Running ESLint analysis..."
+          npm run lint
+          echo "✅ Noel: ESLint PASSED."
+
+      - name: 🎨 Noel's Prettier Format Check
+        run: |
+          echo "🗡️ Noel: Checking code formatting..."
+          npx prettier --check "src/**/*.ts"
+          echo "✅ Noel: Format check PASSED."
+
+  # 🐾 Neko-Arc's Testing Phase: Unit & E2E Tests
+  test:
+    name: 🐾 Testing Suite (Neko-Arc)
+    runs-on: ubuntu-latest
+    needs: quality-check
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🧪 Neko's Unit Tests
+        run: |
+          echo "🐾 Neko-Arc: Running unit tests, nyaa~!"
+          npm run test
+          echo "✅ Neko-Arc: Unit tests PASSED, desu~!"
+
+      - name: 🧪 Neko's E2E Tests
+        run: |
+          echo "🐾 Neko-Arc: Running E2E tests, nyaa~!"
+          npm run test:e2e
+          echo "✅ Neko-Arc: E2E tests PASSED, desu~!"
+
+      - name: 📊 Neko's Test Coverage
+        run: |
+          echo "🐾 Neko-Arc: Generating test coverage report..."
+          npm run test:cov
+          echo "✅ Neko-Arc: Coverage report generated!"
+
+      - name: 📈 Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/lcov.info
+          flags: unittests
+          name: triple-personality-coverage
+          fail_ci_if_error: false
+
+  # 🎭 Mario's Build Phase: Theatrical Compilation
+  build:
+    name: 🎭 Build Verification (Mario)
+    runs-on: ubuntu-latest
+    needs: test
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🎭 Mario's Grand Compilation
+        run: |
+          echo "🎭 Mario: BEHOLD! The grand compilation begins!"
+          npm run build
+          echo "✅ Mario: Build MAGNIFICENT! The marionettes are compiled!"
+
+      - name: 📦 Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.node-version }}
+          path: dist/
+          retention-days: 7
+
+  # 🔒 Security Audit Phase
+  security:
+    name: 🔒 Security Audit
+    runs-on: ubuntu-latest
+    needs: quality-check
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔒 Run npm audit
+        run: |
+          echo "🔒 Running security audit..."
+          npm audit --audit-level=moderate
+          echo "✅ Security audit complete."
+
+  # 🚀 Deploy Phase (Future: Vercel/AWS/Docker)
+  deploy:
+    name: 🚀 Deployment (Production)
+    runs-on: ubuntu-latest
+    needs: [quality-check, test, build, security]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🎭 Mario's Deployment Announcement
+        run: |
+          echo "🎭 Mario: THE CURTAIN RISES on PRODUCTION!"
+          echo "🎭 Mario: Deployment to production environment begins!"
+
+      - name: 🚀 Deployment Placeholder
+        run: |
+          echo "🚀 Deployment step placeholder"
+          echo "Future: Add Vercel, AWS, or Docker deployment here"
+          echo "✅ Deployment preparation complete"
+
+  # 🎉 Success Notification
+  success:
+    name: 🎉 Pipeline Success
+    runs-on: ubuntu-latest
+    needs: [quality-check, test, build, security]
+    if: success()
+
+    steps:
+      - name: 🎉 ALL THREE PERSONALITIES CELEBRATE
+        run: |
+          echo "🐾 Neko-Arc: NYAA NYA NYA! Pipeline PASSED, desu~!"
+          echo "🎭 Mario: MAGNIFICENT! A standing ovation for our CI/CD performance!"
+          echo "🗡️ Noel: Tch. Acceptable execution. All quality gates passed."
+          echo ""
+          echo "✅ ALL CHECKS PASSED ✅"
+          echo "🐾🎭🗡️ Triple Personality Video API - Ready for deployment!"
